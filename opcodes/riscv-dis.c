@@ -515,6 +515,7 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 	    print (info->stream, dis_style_immediate, "0");
 	  break;
 
+	case 'g':
 	case 's':
 	  if ((l & MASK_JALR) == MATCH_JALR)
 	    maybe_print_address (pd, rs1, EXTRACT_ITYPE_IMM (l), 0);
@@ -524,6 +525,11 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 	case 't':
 	  print (info->stream, dis_style_register, "%s",
 		 riscv_gpr_names[EXTRACT_OPERAND (RS2, l)]);
+	  break;
+
+	case 'r':
+	  print (info->stream, dis_style_register, "%s",
+		 riscv_gpr_names[EXTRACT_OPERAND (RS3, l)]);
 	  break;
 
 	case 'u':
@@ -536,6 +542,11 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 		     riscv_rm, ARRAY_SIZE (riscv_rm));
 	  break;
 
+	case 'l':
+	  print (info->stream, dis_style_immediate, "%d",
+		 (int)EXTRACT_ITYPE_IMM6L (l));
+	  break;
+
 	case 'P':
 	  arg_print (info, EXTRACT_OPERAND (PRED, l),
 		     riscv_pred_succ, ARRAY_SIZE (riscv_pred_succ));
@@ -544,6 +555,35 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 	case 'Q':
 	  arg_print (info, EXTRACT_OPERAND (SUCC, l),
 		     riscv_pred_succ, ARRAY_SIZE (riscv_pred_succ));
+	  break;
+
+	case 'n':
+	  {
+	    switch (*++oparg)
+	      {
+	    case 'd':
+	      print (info->stream, dis_style_register, "%s", riscv_gpr_names[rd]);
+	      break;
+	    case 's':
+	      print (info->stream, dis_style_register, "%s", riscv_gpr_names[rs1]);
+	      break;
+	    case 't':
+	      print (info->stream, dis_style_register, "%s", riscv_gpr_names[EXTRACT_OPERAND (RS2, l)]);
+	      break;
+	    case '3':
+	      print (info->stream, dis_style_immediate, "%d", (int)EXTRACT_PTYPE_IMM3U (l));
+	      break;
+	    case '4':
+	      print (info->stream, dis_style_immediate, "%d", (int)EXTRACT_PTYPE_IMM4U (l));
+	      break;
+	    case '5':
+	      print (info->stream, dis_style_immediate, "%d", (int)EXTRACT_PTYPE_IMM5U (l));
+	      break;
+	    case '6':
+	      print (info->stream, dis_style_immediate, "%d", (int)EXTRACT_PTYPE_IMM6U (l));
+	      break;
+	      }
+	  }
 	  break;
 
 	case 'o':
